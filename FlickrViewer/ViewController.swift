@@ -7,97 +7,170 @@
 //
 
 import UIKit
+import MBProgressHUD
 import Alamofire
-
-typealias JSONDictionary = [String:AnyObject]
+import AlamofireImage
+import SnapKit
 
 class ViewController: UIViewController {
 
-    let feedURL = "https://api.flickr.com/services/feeds/photos_public.gne?format=json"
+    var timer: Timer?
     
-//    public static func serializeResponseJSON(
-//        options: JSONSerialization.ReadingOptions,
-//        response: HTTPURLResponse?,
-//        data: Data?,
-//        error: Error?)
-//        -> Result<Any>
-//    {
-//        guard error == nil else { return .failure(error!) }
-//        
-//        if let response = response, emptyDataStatusCodes.contains(response.statusCode) { return .success(NSNull()) }
-//        
-//        guard let validData = data, validData.count > 0 else {
-//            return .failure(AFError.responseSerializationFailed(reason: .inputDataNilOrZeroLength))
-//        }
-//        
-//        do {
-//            let json = try JSONSerialization.jsonObject(with: validData, options: options)
-//            return .success(json)
-//        } catch {
-//            return .failure(AFError.responseSerializationFailed(reason: .jsonSerializationFailed(error: error)))
-//        }
-//    }
+    let feedManager = FeedManager()
+    
+    let startButton = UIButton(type: .system)
+    let durationSlider = UISlider()
+    let durationLabel = UILabel()
+    let imageView = UIImageView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationChanged), name: Notification.Name.UIDeviceOrientationDidChange, object: nil)
 
-        Alamofire.request(feedURL).responseString { [weak self] response in
-            
-            //debugPrint(response)
-            
-            guard let responseString = response.result.value else {
-                // handle error
-                return
-            }
-            
-            // take out invalid JSON wrapper from Flickr
-            let prefix = "jsonFlickrFeed("
-            let postfix = ")"
-            
-            let startOffset = prefix.characters.count
-            let endOffset = responseString.characters.count - postfix.characters.count - 1 
-            
-            if startOffset > responseString.characters.count || endOffset < 0 {
-                // handle error
-                return
-            }
-            
-            let startIndex = responseString.index(responseString.startIndex, offsetBy: startOffset)
-            let endIndex = responseString.index(responseString.startIndex, offsetBy: endOffset)
+        imageView.contentMode = .scaleAspectFit
+        imageView.layer.borderWidth = 0.5
+        imageView.layer.borderColor = UIColor.gray.cgColor
+        view.addSubview(imageView)
+        
+        durationSlider.value = 1
+        durationSlider.minimumValue = 1
+        durationSlider.maximumValue = 10
+        durationSlider.addTarget(self, action: #selector(onSliderChange), for: .valueChanged)
+        view.addSubview(durationSlider)
+        
+        durationLabel.text = String(durationSlider.value)
+        view.addSubview(durationLabel)
+        
 
-            let jsonString = responseString[startIndex...endIndex]
+        startButton.setTitle("Start", for: .normal)
+        startButton.addTarget(self, action: #selector(startAction), for: .touchUpInside)
+        view.addSubview(startButton)
+        
+        startButton.snp.makeConstraints { (ConstraintMaker) in
+            ConstraintMaker.bottom.equalToSuperview().offset(-20)
+            ConstraintMaker.centerX.equalToSuperview()
+        }
+        
+        durationLabel.snp.makeConstraints { (ConstraintMaker) in
+            ConstraintMaker.bottom.equalTo(startButton.snp.top).offset(-20)
+            ConstraintMaker.centerX.equalToSuperview()
+        }
+        
+        durationSlider.snp.makeConstraints { (ConstraintMaker) in
+            ConstraintMaker.bottom.equalTo(durationLabel.snp.top).offset(-5)
+            ConstraintMaker.left.equalToSuperview().offset(20)
+            ConstraintMaker.right.equalToSuperview().offset(-20)
+        }
+        
+        updateImageViewContraint()
+        
+        
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
+        hud.mode = .indeterminate;
+        hud.label.text = "Loading";
+        
+        feedManager.fetchFeedsIfNeeded(success: { 
+            hud.hide(animated: true)
             
-            
-            if let data = jsonString.data(using: .utf8) {
-                guard let responseObject = try? JSONSerialization.jsonObject(with: data, options: []) as? JSONDictionary else {
-                    return;
+            if let mediaURL = self.feedManager.currentItem()?.mediaURL {
+                if let url = URL(string: mediaURL) {
+                    self.loadImage(url: url)
                 }
-                
-                
-                var feedList: [FeedItem] = []
-                
-                if let dics = responseObject?["items"] as? [JSONDictionary] {
-//                    for feedItemDictionary in dics {
-//                        if let feedItem = FeedItem(dictionary: feedItemDictionary) {
-//                            feedList.append(feedItem)
-//                        }
-//                    }
-                    feedList = dics.flatMap(FeedItem.init)
-                }
-                
-
-                
-            } else {
-                // handle error
             }
             
+        }) { 
+            hud.hide(animated: true)
+            debugPrint("error occured")
         }
         
     }
+    
+    func updateImageViewContraint() {
+        let size = self.view.frame.size
+        
+        
+        if size.width > size.height {
+            let controllerHeight: CGFloat = 136
+            imageView.snp.remakeConstraints { (ConstraintMaker) in
+                ConstraintMaker.top.equalToSuperview()
+                ConstraintMaker.centerX.equalToSuperview()
+                ConstraintMaker.height.equalTo(size.height - controllerHeight)
+                ConstraintMaker.width.equalTo(imageView.snp.height)
+            }
+        } else {
+            imageView.snp.remakeConstraints { (ConstraintMaker) in
+                ConstraintMaker.top.equalToSuperview()
+                ConstraintMaker.left.equalToSuperview()
+                ConstraintMaker.right.equalToSuperview()
+                ConstraintMaker.height.equalTo(imageView.snp.width)
+            }
+        }
+    }
+    
+    func orientationChanged() {
+        updateImageViewContraint()
+    }
+    
+    func onSliderChange() {
+        durationLabel.text = String(durationSlider.value)
+        resetTimer(interval: Double(durationSlider.value))
+    }
+    
+    func startAction() {
+        resetTimer(interval: Double(durationSlider.value))
+    }
+    
+    func resetTimer(interval: Double) {
+        if (timer != nil) {
+            timer!.invalidate()
+            timer = nil
+        }
+        
+        timer = Timer.scheduledTimer(timeInterval: interval, target: self, selector: #selector(onTimerFired), userInfo: nil, repeats: true);
+    }
+    
+    func onTimerFired() {
+        if let mediaURL = feedManager.nextItem()?.mediaURL {
+            if let url = URL(string: mediaURL) {
+                loadImage(url: url)
+            }
+        }
+    }
+    
+    func loadImage(url: URL) {
+        imageView.af_setImage(withURL: url,
+                              placeholderImage: nil,
+                              filter: nil,
+                              progress: nil,
+                              progressQueue: DispatchQueue.main,
+                              imageTransition: .noTransition,
+                              runImageTransitionIfCached: false,
+                              completion: { (response: DataResponse<UIImage>) in
+                                if response.result.isSuccess {
+                                    UIView.transition(with: self.imageView,
+                                                      duration: 0.3,
+                                                      options: .transitionCrossDissolve,
+                                                      animations: {
+                                                        self.imageView.image = response.result.value
+                                    },
+                                                      completion: nil)
+                                    
+                                }
+        })
+    }
 
+    deinit {
+        if (timer != nil) {
+            timer!.invalidate()
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        
+        feedManager.clearFeeds();
     }
 
 

@@ -15,6 +15,7 @@
 		12A0FA691E20DC22000DA030 /* FlickrViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0FA681E20DC22000DA030 /* FlickrViewerTests.swift */; };
 		12A0FA741E20DC22000DA030 /* FlickrViewerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0FA731E20DC22000DA030 /* FlickrViewerUITests.swift */; };
 		12A0FA821E2125D6000DA030 /* FeedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0FA811E2125D6000DA030 /* FeedItem.swift */; };
+		12A0FA841E21393B000DA030 /* FeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0FA831E21393B000DA030 /* FeedManager.swift */; };
 		743E40D44F3DCF382D598D90 /* Pods_FlickrViewer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED7DB2C52B6D3423591ECA1D /* Pods_FlickrViewer.framework */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,7 @@
 		12A0FA731E20DC22000DA030 /* FlickrViewerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrViewerUITests.swift; sourceTree = "<group>"; };
 		12A0FA751E20DC22000DA030 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		12A0FA811E2125D6000DA030 /* FeedItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedItem.swift; sourceTree = "<group>"; };
+		12A0FA831E21393B000DA030 /* FeedManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedManager.swift; sourceTree = "<group>"; };
 		7E7FD74081F3C1E96B9F5D52 /* Pods-FlickrViewer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FlickrViewer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-FlickrViewer/Pods-FlickrViewer.debug.xcconfig"; sourceTree = "<group>"; };
 		B174100C208BBF80E674BB47 /* Pods-FlickrViewer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FlickrViewer.release.xcconfig"; path = "Pods/Target Support Files/Pods-FlickrViewer/Pods-FlickrViewer.release.xcconfig"; sourceTree = "<group>"; };
 		ED7DB2C52B6D3423591ECA1D /* Pods_FlickrViewer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FlickrViewer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -113,6 +115,7 @@
 				12A0FA5C1E20DC22000DA030 /* LaunchScreen.storyboard */,
 				12A0FA5F1E20DC22000DA030 /* Info.plist */,
 				12A0FA811E2125D6000DA030 /* FeedItem.swift */,
+				12A0FA831E21393B000DA030 /* FeedManager.swift */,
 			);
 			path = FlickrViewer;
 			sourceTree = "<group>";
@@ -340,6 +343,7 @@
 				12A0FA561E20DC22000DA030 /* ViewController.swift in Sources */,
 				12A0FA541E20DC22000DA030 /* AppDelegate.swift in Sources */,
 				12A0FA821E2125D6000DA030 /* FeedItem.swift in Sources */,
+				12A0FA841E21393B000DA030 /* FeedManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +497,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = FlickrViewer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.letmecompile.FlickrViewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -506,6 +511,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = FlickrViewer/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.letmecompile.FlickrViewer;
 				PRODUCT_NAME = "$(TARGET_NAME)";

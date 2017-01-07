@@ -4,5 +4,7 @@ use_frameworks!
 
 target 'FlickrViewer' do
     pod 'Alamofire', '~> 4.0'
+    pod 'AlamofireImage', '~> 3.1'
     pod 'SnapKit', '~> 3.1.2'
+    pod 'MBProgressHUD', '~> 1.0.0'
 end
