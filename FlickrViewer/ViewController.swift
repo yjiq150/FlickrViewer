@@ -90,22 +90,19 @@ class ViewController: UIViewController {
     func updateImageViewContraint() {
         let size = self.view.frame.size
         
-        
+        let controllerHeight: CGFloat = 136
+        var imageWidth: CGFloat
         if size.width > size.height {
-            let controllerHeight: CGFloat = 136
-            imageView.snp.remakeConstraints { (ConstraintMaker) in
-                ConstraintMaker.top.equalToSuperview()
-                ConstraintMaker.centerX.equalToSuperview()
-                ConstraintMaker.height.equalTo(size.height - controllerHeight)
-                ConstraintMaker.width.equalTo(imageView.snp.height)
-            }
+            imageWidth = min(size.width, size.height - controllerHeight)
         } else {
-            imageView.snp.remakeConstraints { (ConstraintMaker) in
-                ConstraintMaker.top.equalToSuperview()
-                ConstraintMaker.left.equalToSuperview()
-                ConstraintMaker.right.equalToSuperview()
-                ConstraintMaker.height.equalTo(imageView.snp.width)
-            }
+            imageWidth = min(size.width, size.height)
+        }
+        
+        imageView.snp.remakeConstraints { (ConstraintMaker) in
+            ConstraintMaker.top.equalToSuperview()
+            ConstraintMaker.centerX.equalToSuperview()
+            ConstraintMaker.height.equalTo(imageWidth)
+            ConstraintMaker.width.equalTo(imageWidth)
         }
     }
     
@@ -165,6 +162,8 @@ class ViewController: UIViewController {
         if (timer != nil) {
             timer!.invalidate()
         }
+        
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func didReceiveMemoryWarning() {
